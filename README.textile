@@ -1,0 +1,140 @@
+
+h1. Couch-View
+
+
+
+h2. Overview
+
+
+
+This JQuery plugin lets you map a CouchDb view to a html grid. That’s it. I looked at the other JQuery grid plug-ins – many of which a really great –  But I couldn't get them working and since I’m lazy I wrote this specialized plug-in. 
+
+So here are its features:
+
+
+
+    * It's HTML agnostic. Y ou can use tables or divs or any HTML to layout your data.
+
+    *  You can view JSON data from any source – such as CouchDB.
+
+    * You get column sorting.
+
+    * You get paging paging
+
+    * It's compatible with JEditable. So you can edit your data.
+
+    * Really small – Currently under 3K.
+
+    * Coded in a clean fashion so you can subclass header/body or footer generation and the loading and saving of data.
+
+
+
+
+
+h2. Before I Embark...
+
+
+
+Before I embark in trying to explain how to use this plug-in, I'm going to explain the JSON data structure that it expects by default. As an example I will use a real database of more than 40K electric power usages records. Here is one of its documents: 
+
+<script src="http://gist.github.com/499302.js?file=gistfile1.js"></script>
+
+
+
+We will start by using this simple couchdb view 
+
+<script src="http://gist.github.com/499324.js?file=A%20simple%20couchdb%20view"></script>
+
+
+
+So if you use the above view by requesting this url [http://69.164.211.38:8080/mydb/_design/tests/_view/id?limit=2]  you will get
+
+
+
+<script src="http://gist.github.com/499346.js?file=A%20coucdb%20view%20result%20sample"></script>
+
+
+
+h2. What to Include
+
+
+
+Include jquery in your HTML header. You can use googleapis for this or the one that comes with couchdb. Then add jquery.couch-view.js. 
+
+
+
+<script src="http://gist.github.com/499397.js?file=couch-view%3A%20javascript%20includes%20"></script>
+
+
+
+h2. Creating  a Grid using @<TABLE>@
+
+
+
+
+
+h3. 1.Create Your Template 
+
+
+
+ Code an example HTML table with one row of dummy data
+
+
+
+<script src="http://gist.github.com/500432.js?file=A_simple_html_table.html"></script>
+
+
+
+<table id="table-1" bgcolor="gray">
+
+    <thead>
+
+        <tr bgcolor="lightgray">
+
+            <th>Id</th>
+
+            <th>Date</th>
+
+            <th>Hour</th>
+
+            <th>Load</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr bgcolor="white" class="data-row">
+
+            <td>pjm-20100405-24</td>
+
+            <td>05/04/2010</td>
+
+            <td>24</td>
+
+            <td>1686.4</td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+
+h3. Apply the plug-in
+
+
+
+Apply the plug-in to a class that you will use for your test grid. In these examples I will use @grid-test@. For options I've set the URL to our database's view design document, the view and a page size of 4 lines. 
+
+
+
+<script src="http://gist.github.com/500455.js?file=couch-view_Apllying_the_plugin.html"></script>
+
+
+
+
+
+

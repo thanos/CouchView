@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <title>Grid Iron</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://960ls.atomidata.com/static/cssserve/9850.css">
+
+   <!--<script src="http://69.164.211.38/_utils/script/jquery.js?1.4.2"></script> 
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>-->
+   
+   <script src="http://69.164.211.38:8080/_utils/script/json2.js"></script>
+   <script src="http://69.164.211.38:8080/_utils/script/jquery.js?1.3.1"></script>
+   <script src="http://69.164.211.38:8080/_utils/script/jquery.couch.js?0.9.0"></script>
+   <script src="http://69.164.211.38:8080/_utils/script/couch.js"></script>
+    <script type="text/javascript" src="jquery.jeditable.js"></script>
+    <script type="text/javascript" src="jquery.gridiron.js"></script>
+    
+   
+    <script>
+
+      $(document).ready(function() {
+       $(".grid-test").couchview({
+        url: "http://69.164.211.38:8080/mydb/_design/tests/_view/",
+        limit: 4,
+        }); 
+       });
+    </script>
+    
+<style type="text/css">
+pre { background: #ffD; border: 1px solid;
+  border-color: #999 #ddd #ddd #999; margin: 0 0 1em; overflow: hidden;
+}
+</style>
+  </head>
+
+  <body>
+<H1>GridIron</h1>
+  <div class="container_12">
+    <div class="grid_7 prefix_1">
+        <div class="grid_7">
+           <h2>Overview</h2>
+            <div class="grid_7">
+                The JQuery plugin lets you map a CouchDb view to a html grid. That's it. I looked at the other JQuery grid plug-in - many of which a really great - I could'nt get them working and since I'm lazy.
+                So here are its features:
+                <ul>
+                    <li> HTML agnostic you can use tables or divs or any HTML to layout your data.
+                    <li> View JSON data from any source - such as CouchDB.
+                    <li> Column sorting.
+                    <li> Paging
+                    <li> Compatible iwth JEditable. So you can edit your data creating new versions or inplace.
+                    <li> Really small - Currently under 3K.
+                    <li> Coded in a clean fasion so you can subclass header/body or footer generation and the loading and saving of data.
+                </ul>
+            </div>
+        </div>
+    <div class="grid_8">
+           <h2>A Quick Guide with HTML Tables</h2>
+           
+           <ol>
+           
+           <li> 
+           <h4>Before I Embark...</h4>
+           Before I embark in trying to explain how to use this plug-in, I'm going to explain the JSON datastructure that it expects by default.
+           As an example I will use a real database of more than 40K electric power usages records. Here is one of its documents:
+           <pre>
+           {_id: "4da96f65dfecf6edd329269c3799de60", 
+            _rev: "1-3a49c260576c26c758742c8842d5b9ca", 
+            loadAvgHourlyNI: 8404.7, 
+            hourEnd: 1, 
+            loadAvgHourlyDUQ: 1263.2, 
+            loadAvgHourlyDAY: 1392.2, 
+            loadAvgHourlyMIDATL: 22126.6, 
+            loadAvgHourlyDOM: 7162.4, 
+            loadAvgHourlyAEP: 10855.8, 
+            loadAvgHourlyAP: 3834.5, 
+            date: "2010-04-05", 
+                id: "pjm-20100405-01"}
+           </pre>
+           
+           I'll start with using this view:
+           
+           <pre>
+            {
+                "_id": "_design/tests",
+                "_rev": "2-9712dcb1e76a5cc7ab0e0e0b5bf7a70a",
+                "language": "javascript",
+                "views": {
+                    "id": {
+                        "map": "function(doc) {\n  emit(doc.id, doc);\n}"
+                    }
+                }
+            }
+           </pre>
+           
+           So <a href="http://69.164.211.38:8080/mydb/_design/tests/_view/id?limit=2">http://69.164.211.38:8080/mydb/_design/tests/_view/id?limit=2</a>
+           will give you:
+           <pre>
+           {
+            "total_rows":24,
+            "offset":0,
+            "rows":[
+                        {
+                            "id":"4da96f65dfecf6edd329269c3799de60",
+                            "key":"pjm-20100405-01",
+                            "value":{"_id":"4da96f65dfecf6edd329269c3799de60","_rev":"1-3a49c260576c26c758742c8842d5b9ca","loadAvgHourlyNI":8404.7,"hourEnd":1,"loadAvgHourlyDUQ":1263.2,"loadAvgHourlyDAY":1392.2,"loadAvgHourlyMIDATL":22126.6,"loadAvgHourlyDOM":7162.4,"loadAvgHourlyAEP":10855.8,"loadAvgHourlyAP":3834.5,"date":"2010-04-05","id":"pjm-20100405-01"}
+                        },
+                        {"id":"6339d2c104c222a31872ac400f2a5bb9","key":"pjm-20100405-02","value":{"_id":"6339d2c104c222a31872ac400f2a5bb9","_rev":"1-0e0e84e6485fd61bf830cd01df406393","loadAvgHourlyNI":8011.1,"hourEnd":2,"loadAvgHourlyDUQ":1242.6,"loadAvgHourlyDAY":1347.6,"loadAvgHourlyMIDATL":21215.9,"loadAvgHourlyDOM":6819,"loadAvgHourlyAEP":10485.4,"loadAvgHourlyAP":3808,"date":"2010-04-05","id":"pjm-20100405-02"}}
+                    ]
+                }
+           </pre>
+           </li>
+           <li>
+           <H4>What to Include</h4>
+             Include jquery in your HTML header. You can use googleapis for this. Then add jquery.couchview.js. 
+                    <pre>
+                        &lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js&quot; type=&quot;text/javascript&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+                        &lt;script type=&quot;text/javascript&quot; src=&quot;jquery.couchview.js&quot;&gt;&lt;/script&gt;
+                    </pre>
+            </li>
+            
+            
+            
+            <li>
+                <h4>Creating your Template</h4>
+                
+                Code an example table with one row of dummy data:
+                    <table><tr><td>
+                    <pre>
+                     &lt;table id=&quot;table-1&quot; bgcolor=&quot;gray&quot;&gt;
+                 &lt;tbody&gt;
+                  &lt;tr  bgcolor=&quot;lightgray&quot;&gt;
+                        &lt;th&gt;Id&lt;/th&gt;
+                        &lt;th&gt;Date&lt;/th&gt;
+                        &lt;th&gt;Hour&lt;/th&gt;
+                        &lt;th&gt;Load&lt;/th&gt;
+                  &lt;/tr&gt;
+                  &lt;tr  bgcolor=&quot;white&quot; class=&quot;data-row&quot;&gt;
+                      &lt;td&gt;pjm-20100405-24&lt;/td&gt;
+                      &lt;td&gt;05/04/2010&lt;/td&gt;
+                      &lt;td&gt;24&lt;/td&gt;
+                      &lt;td&gt;1686.4&lt;/td&gt;
+                  &lt;/tr&gt;
+                  &lt;/tbody&gt;
+                &lt;/table&gt;
+                    </pre>
+                    </td></tr><tr>
+                    <td>
+                <table bgcolor="gray">
+                 <tbody>
+                  <tr  bgcolor="lightgray">
+                       <th>Id</th><th>Date</th><th>Hour</th><th>Load</th>
+                  </tr>
+                  <tr  bgcolor="white" class="data-row">
+                      <td>test_id</td><td>05/04/2010</td><td>24</td><td>1686.4</td>
+                  </tr>
+                  </tbody>
+                </table>
+                </td></tr></table>
+                    </li>
+            
+            
+           
+             <li>  
+             <h4>Apply the plugin</H4>
+             Apply the plugin to a class that you will use for your test grid. In these examples I will use 'grid-test'. For options i've set the url to our database's view design document, the view and a page size of 4 lines.             
+            <pre>
+            &lt;html lang=&quot;en&quot;&gt;
+                &lt;head&gt;
+                    &lt;title&gt;Couch View&lt;/title&gt;
+                    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html;charset=utf-8&quot; /&gt;
+                    &lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js&quot; type=&quot;text/javascript&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+                    &lt;script type=&quot;text/javascript&quot;  src=&quot;jquery.couchview.js&quot;&gt;&lt;/script&gt;
+                    &lt;script&gt;
+                        $(document).ready(function() {
+                            $(&quot;.grid-test&quot;).couchview({
+                            url: &quot;http://69.164.211.38:8080/mydb/_design/tests/_view/&quot;,
+                            limit: 4,
+                            view:'id'
+                            });
+                        });
+                    &lt;/script&gt;
+                &lt;/head&gt;
+            </pre>
+        </li>
+           
+        <li> <h4>Enliven your Table</h4>
+            <ol>
+               <li> Add to the parent container, in this case table, the class 'grid-test', give it also an id.
+                    <pre>
+                    &lt;table id=&quot;table-1&quot; bgcolor=&quot;gray&quot;   class=&quot;grid-test&quot; &gt;
+                    </pre>
+               </li>
+               <li>
+                    Now add to each data cell, in this case the table's TD element the class 'field' and a id attribute set to teh name of a field form the document:
+                    In this example we will want to show only id, date, hour, and loadAvgHourlyDAY.
+                    <pre>
+&lt;table id=&quot;example-1&quot; bgcolor=&quot;gray&quot; class=&quot;grid-test&quot;&gt;
+    &lt;tbody class=&quot;data-body&quot;&gt;
+        &lt;tr  bgcolor=&quot;lightgray&quot; class=&quot;header-row&quot;&gt;
+            &lt;th&gt;Id&lt;/th&gt;
+            &lt;th&gt;Date&lt;/th&gt;
+            &lt;th&gt;Hour&lt;/th&gt;
+            &lt;th&gt;Load&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;tr  bgcolor=&quot;white&quot; class=&quot;data-row&quot;&gt;
+            &lt;td class=&quot;field&quot; id=&quot;id&quot;&gt;pjm-20100405-24&lt;/td&gt;
+            &lt;td class=&quot;field&quot; id=&quot;date&quot;&gt;05/04/2010&lt;/td&gt;
+            &lt;td class=&quot;field&quot; id=&quot;hourEnd&quot; &gt;24&lt;/td&gt;
+            &lt;td class=&quot;field&quot; id=&quot;loadAvgHourlyDAY&quot;&gt;1686.4&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+                    </pre>
+                <table id="example-1" bgcolor="gray" class="grid-test">
+                 <tbody class="data-body">
+                  <tr  bgcolor="lightgray" class="header-row">
+                        <th id="id" class="column" >Id</th>
+                        <th id="date" class="column" >Date</th>
+                        <th id="hourEnd" class="column" >Hour</th>
+                        <th id="loadAvgHourlyDAY" class="column" >Load</th>
+                  </tr>
+                  <tr  bgcolor="white" class="data-row">
+                      <td class="field" id="id">pjm-20100405-24</td>
+                      <td class="field edit" id="date">05/04/2010</td>
+                      <td class="field edit" id="hourEnd" >24</td>
+                      <td class="field edit" id="loadAvgHourlyDAY">1686.4</td>
+                  </tr>
+                  </tbody>
+                </table>
+                </li>
+                </ol>
+                <li> <h4>Add a Pager</h4>
+                Now we will add the pager. Here are the relevant classes:
+                    <table  bgcolor="lightgray" > 
+                        <tr  bgcolor="white" ><th>class</th><th>Use</th></tr>
+                        <tr bgcolor="white" ><td>pager-first</td><td>Creates a clickable element that requests the first page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-prev-page</td><td>Creates a clickable element that requests the previous page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-prev</td><td>Creates a clickable element that requests data from the previous record</td></tr>
+                        <tr bgcolor="white" ><td>pager-page</td><td>The element's inner html is replaced with the current page number</td></tr>
+                        <tr bgcolor="white" ><td>pager-page-total</td><td>The element's inner html is replaced with the number of pages in total</td></tr>
+                        <tr bgcolor="white" ><td>pager-next</td><td>Creates a clickable element that  requests data from the next record</td></tr>
+                        <tr bgcolor="white" ><td>pager-next-page</td>Creates a clickable element that requests the next page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-last</td><td>Creates a clickable element that requests the last page data</td></tr>
+                   </table>                        
+                   In this example we won't use all of them. It sould be obvoius that the pager can be anywhere within the container whose class is (in this example) 'grid-test'.
+                   We will use a subset of these classes, and append the following row to our example table: 
+                   <pre>
+&lt;tr  bgcolor=&quot;white&quot;&gt;
+    &lt;th class=&quot;pager-first&quot;&gt;first&lt;/th&gt;
+    &lt;th class=&quot;pager-prev-page&quot;&gt;prev&lt;/th&gt;
+    &lt;th class=&quot;pager-page&quot;&gt;page&lt;/th&gt;
+    &lt;th class=&quot;pager-next&quot; &gt;next&lt;/th&gt;
+    &lt;th class=&quot;pager-last&quot;&gt;last&lt;/th&gt;
+&lt;/tr&gt;
+                   </pre>
+                   So we get:
+                    <table id="example-2" bgcolor="gray" class="grid-test">
+                 <tbody class="data-body">
+                  <tr  bgcolor="lightgray" class="header-row">
+                        <th id="id"  >Id</th>
+                        <th id="date"  >Date</th>
+                        <th id="hourEnd"  >Hour</th>
+                        <th id="loadAvgHourlyDAY" >Load</th>
+                  </tr>
+                  <tr  bgcolor="white" class="data-row">
+                      <td class="field" id="id">pjm-20100405-24</td>
+                      <td class="field" id="date">05/04/2010</td>
+                      <td class="field" id="hourEnd" >24</td>
+                      <td class="field" id="loadAvgHourlyDAY">1686.4</td>
+                  </tr>
+                 
+                  </tbody>
+                   <tr  bgcolor="white">
+          <th class="pager-prev-page">prev page</th>
+          <th class="pager-page">page</th>
+          <th class="pager-next"colspan="2">next</th>
+      </tr>
+                </table>
+                   
+                </li>
+                
+                <li> <H4>Add Sorting</h4>
+                Next is to add some sorting. The way I do is to have a different view for each sort. It sounds terriable but it's really quite clean:
+                
+                <pre>
+{
+   "_id": "_design/tests",
+   "_rev": "7-33b9ed5cb7a82e86d440f83f00cd341e",
+   "language": "javascript",
+   "views": {
+
+       "id": {
+           "map": "function(doc) {\n  emit(doc.id, doc);\n}"
+       },
+       "date": {
+           "map": "function(doc) {\n  emit(doc.date, doc);\n}"
+       },
+       "hourEnd": {
+           "map": "function(doc) {\n  emit(doc.hourEnd, doc);\n}"
+       },
+       "loadAvgHourlyDAY": {
+           "map": "function(doc) {\n  emit(doc.loadAvgHourlyDAY, doc);\n}"
+       }
+   }
+}
+                </pre>
+                Now added a 'data-sort' class to the column header  elements, in this case the TH tags. Also add an 'id' attribute to each column header setting it to the name of the view.
+                <pre>
+ &lt;table id=&quot;example-3&quot; bgcolor=&quot;gray&quot; class=&quot;grid-test&quot;&gt;
+        &lt;tbody class=&quot;data-body&quot;&gt;
+            <b>&lt;tr  bgcolor=&quot;lightgray&quot; class=&quot;header-row&quot;&gt;
+                &lt;th id=&quot;id&quot; class=&quot;data-sort&quot; &gt;Id&lt;/th&gt;
+                &lt;th id=&quot;date&quot; class=&quot;data-sort&quot; &gt;Date&lt;/th&gt;
+                &lt;th id=&quot;hourEnd&quot; class=&quot;data-sort&quot; &gt;Hour&lt;/th&gt;
+                &lt;th id=&quot;loadAvgHourlyDAY&quot; class=&quot;data-sort&quot; &gt;Load&lt;/th&gt;
+            &lt;/tr&gt;</b>
+            &lt;tr  bgcolor=&quot;white&quot; class=&quot;data-row&quot;&gt;
+                &lt;td class=&quot;field&quot; id=&quot;id&quot;&gt;pjm-20100405-24&lt;/td&gt;
+                &lt;td class=&quot;field&quot; id=&quot;date&quot;&gt;05/04/2010&lt;/td&gt;
+                &lt;td class=&quot;field&quot; id=&quot;hourEnd&quot; &gt;24&lt;/td&gt;
+                &lt;td class=&quot;field&quot; id=&quot;loadAvgHourlyDAY&quot;&gt;1686.4&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+        &lt;tr  bgcolor=&quot;white&quot;&gt;
+            &lt;th class=&quot;pager-prev-page&quot;&gt;prev page&lt;/th&gt;
+            &lt;th class=&quot;pager-page&quot;&gt;page&lt;/th&gt;
+            &lt;th class=&quot;pager-next&quot;colspan=&quot;2&quot;&gt;next&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+
+</pre>
+                        
+    <table id="example-3" bgcolor="gray" class="grid-test">
+        <tbody class="data-body">
+            <tr  bgcolor="lightgray" class="header-row">
+                <th id="id" class="data-sort" >Id</th>
+                <th id="date" class="data-sort" >Date</th>
+                <th id="hourEnd" class="data-sort" >Hour</th>
+                <th id="loadAvgHourlyDAY" class="data-sort" >Load</th>
+            </tr>
+            <tr  bgcolor="white" class="data-row">
+                <td class="field" id="id">pjm-20100405-24</td>
+                <td class="field" id="date">05/04/2010</td>
+                <td class="field" id="hourEnd" >24</td>
+                <td class="field" id="loadAvgHourlyDAY">1686.4</td>
+            </tr>
+        </tbody>
+        <tr  bgcolor="white">
+            <th class="pager-prev-page">prev page</th>
+            <th class="pager-page">page</th>
+            <th class="pager-next"colspan="2">next</th>
+        </tr>
+    </table>
+    
+    That was easy, right ?    
+                </li>
+                
+  
+                
+                <li> <h4> Make it Editable</h4>
+                Right, now you want your table editable. The easiest way, for now, is to use the editable plugin, <a href="http://www.appelsiini.net/projects/jeditable">http://www.appelsiini.net/projects/jeditable</a>.
+                Add it to your header:
+                <pre>
+&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js&quot; type=&quot;text/javascript&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+<b>&lt;script type=&quot;text/javascript&quot; src=&quot;jquery.jeditable.js&quot;&gt;&lt;/script&gt;</b>
+&lt;script type=&quot;text/javascript&quot;  src=&quot;jquery.couchview.js&quot;&gt;&lt;/script&gt;
+                </pre>
+                Then added 'edit' to the class of the data columns you want editable. For this example we will make just 'Load' editable.
+                
+                
+                <pre>
+&lt;tr  bgcolor=&quot;white&quot; class=&quot;data-row&quot;&gt;
+    &lt;td class=&quot;field&quot; id=&quot;id&quot;&gt;pjm-20100405-24&lt;/td&gt;
+    &lt;td class=&quot;field&quot; id=&quot;date&quot;&gt;05/04/2010&lt;/td&gt;
+    &lt;td class=&quot;field&quot; id=&quot;hourEnd&quot; &gt;24&lt;/td&gt;
+    <b>&lt;td class=&quot;field edit&quot; id=&quot;loadAvgHourlyDAY&quot;&gt;1686.4&lt;/td&gt;</b>
+&lt;/tr&gt;
+            </pre>
+                
+                    <table id="example-4" bgcolor="gray" class="grid-test">
+        <tbody class="data-body">
+            <tr  bgcolor="lightgray" class="header-row">
+                <th id="_id" class="data-sort" >Id</th>
+                <th id="date" class="data-sort" >Date</th>
+                <th id="hourEnd" class="data-sort" >Hour</th>
+                <th id="loadAvgHourlyDAY" class="data-sort" >Load</th>
+            </tr>
+            <tr  bgcolor="white" class="data-row">
+                <td class="field" id="_id">pjm-20100405-24</td>
+                <td class="field" id="date">05/04/2010</td>
+                <td class="field" id="hourEnd" >24</td>
+                <td class="field edit" id="loadAvgHourlyDAY">1686.4</td>
+            </tr>
+        </tbody>
+        <tr  bgcolor="white">
+            <th class="pager-prev-page">prev page</th>
+            <th class="pager-page">page</th>
+            <th class="pager-next"colspan="2">next</th>
+        </tr>
+    </table>
+                
+                <b>There you are.</b></li>                
+                </ol>
+            
+                   
+        </div>
+     <div class="grid_7">
+           <h2>Classes</h2>
+           <table  bgcolor="lightgray" > 
+                        <tr  bgcolor="white" ><th>class</th><th>Use</th></tr>
+                        <tr bgcolor="white" ><td>pager-first</td><td>Creates a clickable element that requests the first page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-prev-page</td><td>Creates a clickable element that requests the previous page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-prev</td><td>Creates a clickable element that requests data from the previous record</td></tr>
+                        <tr bgcolor="white" ><td>pager-page</td><td>The element's inner html is replaced with the current page number</td></tr>
+                        <tr bgcolor="white" ><td>pager-page-total</td><td>The element's inner html is replaced with the number of pages in total</td></tr>
+                        <tr bgcolor="white" ><td>pager-next</td><td>Creates a clickable element that  requests data from the next record</td></tr>
+                        <tr bgcolor="white" ><td>pager-next-page</td>Creates a clickable element that requests the next page data</td></tr>
+                        <tr bgcolor="white" ><td>pager-last</td><td>Creates a clickable element that requests the last page data</td></tr>
+                   </table>        
+        </div>
+         
+        <div class="grid_7">
+           <h2>Options</h2>
+           <table  bgcolor="lightgray" > 
+                        <tr  bgcolor="white" ><th>class</th><th>Use</th></tr>
+                        <tr bgcolor="white" ><td>url</td><td>Creates a clickable element that requests the first page data</td></tr>
+                        <tr bgcolor="white" ><td>limit</td><td>Creates a clickable element that requests the previous page data</td></tr>
+                        <tr bgcolor="white" ><td>default_view</td><td>Creates a clickable element that requests data from the previous record</td></tr>
+            </table>   
+        </div>
+</div>
+  
+  
+  
+  
+ 
+  
+</div>
+
+  </body>
+</html>
