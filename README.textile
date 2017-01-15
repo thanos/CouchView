@@ -34,8 +34,7 @@ h4. Before I Embark...
 
 Before I embark in trying to explain how to use this plug-in, I'm going to explain the JSON datastructure that it expects by default.
            As an example I will use a real database of more than 40K electric power usages records. Here is one of its documents:
-         Before I embark in trying to explain how to use this plug-in, I'm going to explain the JSON datastructure that it expects by default.
-           As an example I will use a real database of more than 40K electric power usages records. Here is one of its documents:
+         
            <pre>
            {
             _id: "4da96f65dfecf6edd329269c3799de60",
